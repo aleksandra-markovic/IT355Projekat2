@@ -6,6 +6,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +25,7 @@ import lombok.ToString;
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long event_id;
+    private Long id;
 
     private String eventName;
 
@@ -31,7 +33,11 @@ public class Event {
 
     private LocalDateTime dateTime;
 
-    private Long location_id;
+    @ManyToOne
+    @JoinColumn(name = "location_id")
+    private Location location;
 
-    private Long organizer_id;
+    @ManyToOne
+    @JoinColumn(name = "organizer_id")
+    private User organizer;
 }

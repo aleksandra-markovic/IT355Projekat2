@@ -21,7 +21,7 @@ import lombok.ToString;
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long location_id;
+    private Long id;
 
     private String city;
 
