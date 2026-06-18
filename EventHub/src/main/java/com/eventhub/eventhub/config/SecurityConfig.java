@@ -40,6 +40,12 @@ public class SecurityConfig {
 
                     // user i admin mogu da čitaju evente
                     .requestMatchers(HttpMethod.GET, "/api/events/**").hasAnyRole("USER", "ADMIN")
+
+                    //Rezervacije
+                    .requestMatchers(HttpMethod.POST, "/api/reservations/event/**").hasAnyRole("USER", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/reservations/*").hasAnyRole("USER", "ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/reservations/*").hasAnyRole("USER", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/reservations/event/**").hasRole("ADMIN")
                     .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter,
