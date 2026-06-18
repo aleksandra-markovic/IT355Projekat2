@@ -46,6 +46,11 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/reservations/*").hasAnyRole("USER", "ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/api/reservations/*").hasAnyRole("USER", "ADMIN")
                     .requestMatchers(HttpMethod.GET, "/api/reservations/event/**").hasRole("ADMIN")
+
+                    //Komentari
+                    .requestMatchers(HttpMethod.GET, "/api/comments/event/**").hasAnyRole("USER", "ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/comments/event/**").hasAnyRole("USER", "ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/comments/**").hasAnyRole("USER", "ADMIN")
                     .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter,
