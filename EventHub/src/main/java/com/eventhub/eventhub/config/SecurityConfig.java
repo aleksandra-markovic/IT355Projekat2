@@ -3,6 +3,7 @@ package com.eventhub.eventhub.config;
 import com.eventhub.eventhub.security.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,6 +33,13 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api/auth/**").permitAll()
+                    // admin može da dodaje, menja i briše evente
+                    .requestMatchers(HttpMethod.POST, "/api/events/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/events/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasRole("ADMIN")
+
+                    // user i admin mogu da čitaju evente
+                    .requestMatchers(HttpMethod.GET, "/api/events/**").hasAnyRole("USER", "ADMIN")
                     .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter,
