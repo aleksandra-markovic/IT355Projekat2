@@ -1,8 +1,11 @@
 package com.eventhub.eventhub.service;
 
 import com.eventhub.eventhub.exceptions.EventNotFoundException;
+import com.eventhub.eventhub.exceptions.LocationNotFoundException;
 import com.eventhub.eventhub.model.Event;
+import com.eventhub.eventhub.model.Location;
 import com.eventhub.eventhub.repository.EventRepository;
+import com.eventhub.eventhub.repository.LocationRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,6 +24,9 @@ class EventServiceTest {
 
     @Mock
     private EventRepository eventRepository;
+
+    @Mock
+    private LocationRepository locationRepository;
 
     @InjectMocks
     private EventService eventService;
@@ -76,16 +82,46 @@ class EventServiceTest {
     @Test
     void addEvent_shouldSaveEvent() {
 
+        Location location = new Location();
+        location.setId(1L);
+
         Event event = new Event();
         event.setEventName("Utakmica");
+        event.setLocation(location);
 
-        when(eventRepository.save(event)).thenReturn(event);
+        when(locationRepository.findById(1L))
+                .thenReturn(Optional.of(location));
+
+        when(eventRepository.save(event))
+                .thenReturn(event);
 
         Event result = eventService.addEvent(event);
 
         assertEquals("Utakmica", result.getEventName());
 
+        verify(locationRepository).findById(1L);
         verify(eventRepository).save(event);
+    }
+
+    @Test
+    void addEvent_whenLocationDoesNotExist_shouldThrowException() {
+
+        Location location = new Location();
+        location.setId(1L);
+
+        Event event = new Event();
+        event.setEventName("Utakmica");
+        event.setLocation(location);
+
+        when(locationRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(LocationNotFoundException.class, () -> {
+            eventService.addEvent(event);
+        });
+
+        verify(locationRepository).findById(1L);
+        verify(eventRepository, never()).save(any());
     }
 
     @Test

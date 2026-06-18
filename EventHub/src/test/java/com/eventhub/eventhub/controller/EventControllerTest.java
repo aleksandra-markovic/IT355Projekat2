@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 @Transactional
 @Rollback
-class EventControllerIntegrationTest {
+class EventControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

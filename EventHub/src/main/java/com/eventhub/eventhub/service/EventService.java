@@ -1,11 +1,13 @@
 package com.eventhub.eventhub.service;
 
 import com.eventhub.eventhub.exceptions.EventNotFoundException;
+import com.eventhub.eventhub.exceptions.LocationNotFoundException;
 import com.eventhub.eventhub.model.enums.Category;
 import com.eventhub.eventhub.model.Event;
 import com.eventhub.eventhub.model.Location;
 import com.eventhub.eventhub.model.User;
 import com.eventhub.eventhub.repository.EventRepository;
+import com.eventhub.eventhub.repository.LocationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,15 +18,27 @@ import java.util.List;
 public class EventService {
 
     private final EventRepository eventRepository;
+    private final LocationRepository locationRepository;
 
-    public EventService(EventRepository eventRepository) {
+    public EventService(EventRepository eventRepository, LocationRepository locationRepository) {
         this.eventRepository = eventRepository;
+        this.locationRepository = locationRepository;
     }
 
     /**
      * Dodavanje novog događaja
      */
     public Event addEvent(Event event) {
+
+        Long locationId = event.getLocation().getId();
+
+        Location location = locationRepository.findById(locationId)
+                .orElseThrow(() ->
+                        new LocationNotFoundException(
+                                "Lokacija sa ovim id-em nije pronađena: " + locationId));
+
+        event.setLocation(location);
+
         return eventRepository.save(event);
     }
 
