@@ -37,36 +37,62 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // EVENTS
-                        .requestMatchers(HttpMethod.GET, "/api/events/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/events/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/events/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/events", "/api/events/**")
+                        .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 
-                        //Lokacije
-                        .requestMatchers(HttpMethod.GET, "/api/locations/**")
-                        .hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/events", "/api/events/**")
+                        .hasAuthority("ROLE_ADMIN")
 
-                        .requestMatchers(HttpMethod.POST, "/api/locations/**")
-                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/events/**")
+                        .hasAuthority("ROLE_ADMIN")
+
+                        .requestMatchers(HttpMethod.DELETE, "/api/events/**").authenticated()
+
+                        // LOCATIONS
+                        .requestMatchers(HttpMethod.GET, "/api/locations", "/api/locations/**")
+                        .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/api/locations", "/api/locations/**")
+                        .hasAuthority("ROLE_ADMIN")
 
                         .requestMatchers(HttpMethod.DELETE, "/api/locations/**")
-                        .hasRole("ADMIN")
+                        .hasAuthority("ROLE_ADMIN")
+
                         // RESERVATIONS
-                        .requestMatchers(HttpMethod.POST, "/api/reservations/event/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/reservations/event/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/reservations/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/reservations/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/reservations/event/**")
+                        .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/reservations/event/**")
+                        .hasAuthority("ROLE_ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/reservations", "/api/reservations/**")
+                        .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+
+                        .requestMatchers(HttpMethod.DELETE, "/api/reservations/**")
+                        .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 
                         // COMMENTS
-                        .requestMatchers(HttpMethod.GET, "/api/comments/event/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/comments/event/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/comments/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/comments/event/**")
+                        .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/api/comments/event/**")
+                        .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+
+                        .requestMatchers(HttpMethod.DELETE, "/api/comments/**")
+                        .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 
                         // USERS
-                        .requestMatchers(HttpMethod.GET, "/api/users/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/users", "/api/users/**")
+                        .hasAuthority("ROLE_ADMIN")
+
+                        .requestMatchers(HttpMethod.PUT, "/api/users/**")
+                        .hasAuthority("ROLE_ADMIN")
+
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/**")
+                        .hasAuthority("ROLE_ADMIN")
 
                         .anyRequest().authenticated()
                 )

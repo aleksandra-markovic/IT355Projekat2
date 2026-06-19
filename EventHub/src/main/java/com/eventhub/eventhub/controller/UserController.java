@@ -43,4 +43,9 @@ public class UserController {
     public List<User> searchUsers(@RequestParam String username) {
         return userService.searchUsersByUsername(username);
     }
+
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable Long userId) {
+        userService.deleteUser(userId);
+    }
 }
