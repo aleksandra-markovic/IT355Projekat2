@@ -14,4 +14,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByEvent(Event event);
 
     List<Comment> findByUserUsername(String username);
+
+    void deleteByEventId(Long eventId);
 }

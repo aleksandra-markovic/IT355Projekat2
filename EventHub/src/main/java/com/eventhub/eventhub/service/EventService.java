@@ -6,8 +6,10 @@ import com.eventhub.eventhub.model.enums.Category;
 import com.eventhub.eventhub.model.Event;
 import com.eventhub.eventhub.model.Location;
 import com.eventhub.eventhub.model.User;
+import com.eventhub.eventhub.repository.CommentRepository;
 import com.eventhub.eventhub.repository.EventRepository;
 import com.eventhub.eventhub.repository.LocationRepository;
+import com.eventhub.eventhub.repository.ReservationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,10 +21,17 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final LocationRepository locationRepository;
+    private final ReservationRepository reservationRepository;
+    private final CommentRepository commentRepository;
 
-    public EventService(EventRepository eventRepository, LocationRepository locationRepository) {
+    public EventService(EventRepository eventRepository,
+                        LocationRepository locationRepository,
+                        ReservationRepository reservationRepository,
+                        CommentRepository commentRepository) {
         this.eventRepository = eventRepository;
         this.locationRepository = locationRepository;
+        this.reservationRepository = reservationRepository;
+        this.commentRepository = commentRepository;
     }
 
     /**
@@ -64,11 +73,15 @@ public class EventService {
     /**
      * Brisanje događaja
      */
+    @Transactional
     public void deleteEvent(Long id) {
 
         if (!eventRepository.existsById(id)) {
-            throw new EventNotFoundException("Event not found with id: " + id);
+            throw new EventNotFoundException("Event sa ovim id-em nije pronađen: " + id);
         }
+
+        reservationRepository.deleteByEventId(id);
+        commentRepository.deleteByEventId(id);
 
         eventRepository.deleteById(id);
     }

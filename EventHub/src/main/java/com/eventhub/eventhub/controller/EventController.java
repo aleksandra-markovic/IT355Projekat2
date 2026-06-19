@@ -57,6 +57,8 @@ public class EventController {
      */
     @DeleteMapping("/{id}")
     public void deleteEvent(@PathVariable Long id) {
+
+        System.out.println("USAO U DELETE CONTROLLER");
         eventService.deleteEvent(id);
     }
 
