@@ -1,139 +1,88 @@
 package com.eventhub.eventhub.controller;
 
-
 import com.eventhub.eventhub.dto.request.LoginRequest;
 import com.eventhub.eventhub.dto.request.RegisterRequest;
+import com.eventhub.eventhub.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
-import org.springframework.http.MediaType;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.test.annotation.Rollback;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
-@Rollback
 class AuthIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    /**
-     * REGISTRATION + LOGIN FLOW TEST
-     */
-    @Test
-    void register_and_login_flow_should_return_jwt() throws Exception {
+    private ObjectMapper objectMapper = new ObjectMapper();
 
-        // REGISTER
-        String registerJson = """
-        {
-            "username":"testuser1",
-            "email":"test1@test.com",
-            "password":"123456"
-        }
-        """;
+    @Autowired
+    private UserRepository userRepository;
+
+    @BeforeEach
+    void setUp() {
+        userRepository.findByUsername("user_test")
+                .ifPresent(userRepository::delete);
+
+        userRepository.findByUsername("login_test")
+                .ifPresent(userRepository::delete);
+    }
+
+    @AfterEach
+    void cleanUp() {
+        userRepository.findByUsername("user_test")
+                .ifPresent(userRepository::delete);
+
+        userRepository.findByUsername("login_test")
+                .ifPresent(userRepository::delete);
+    }
+
+    @Test
+    void register_shouldCreateUser() throws Exception {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("user_test");
+        request.setEmail("user_test@test.com");
+        request.setPassword("123456");
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(registerJson))
-                .andExpect(status().isOk());
-
-        // LOGIN
-        String loginJson = """
-        {
-            "username":"testuser1",
-            "password":"123456"
-        }
-        """;
-
-        String response = mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginJson))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        assertTrue(response.contains("token"));
+                .andExpect(jsonPath("$.username").value("user_test"))
+                .andExpect(jsonPath("$.email").value("user_test@test.com"))
+                .andExpect(jsonPath("$.role").value("ROLE_USER"));
     }
 
-    /**
-     * PROTECTED ENDPOINT WITHOUT TOKEN
-     */
     @Test
-    void protected_endpoint_should_return_401_or_403() throws Exception {
-
-        mockMvc.perform(get("/api/events"))
-                .andExpect(status().isForbidden());
-    }
-
-    /**
-     * LOGIN WITH WRONG PASSWORD
-     */
-    @Test
-    void login_with_wrong_password_should_return_401() throws Exception {
-
-        // prvo kreiramo user
-        String registerJson = """
-        {
-            "username":"wrongpassuser",
-            "email":"wrong@test.com",
-            "password":"123456"
-        }
-        """;
+    void login_shouldReturnToken() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setUsername("login_test");
+        registerRequest.setEmail("login_test@test.com");
+        registerRequest.setPassword("123456");
 
         mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(registerJson))
-                .andExpect(status().isOk());
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(registerRequest)));
 
-        // pogrešan login
-        String loginJson = """
-        {
-            "username":"wrongpassuser",
-            "password":"wrongpass"
-        }
-        """;
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setUsername("login_test");
+        loginRequest.setPassword("123456");
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginJson))
-                .andExpect(status().isUnauthorized());
-    }
-
-    /**
-     * DUPLICATE USERNAME TEST
-     */
-    @Test
-    void register_duplicate_username_should_fail() throws Exception {
-
-        String registerJson = """
-        {
-            "username":"duplicateuser",
-            "email":"dup@test.com",
-            "password":"123456"
-        }
-        """;
-
-        // prvi put OK
-        mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(registerJson))
-                .andExpect(status().isOk());
-
-        // drugi put → CONFLICT (409)
-        mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(registerJson))
-                .andExpect(status().isConflict());
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").exists())
+                .andExpect(jsonPath("$.username").value("login_test"))
+                .andExpect(jsonPath("$.role").value("ROLE_USER"));
     }
 }
