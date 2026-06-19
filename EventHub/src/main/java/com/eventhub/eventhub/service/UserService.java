@@ -31,11 +31,11 @@ public class UserService {
     public User registerUser(User user) {
 
         if (userRepository.existsByUsername(user.getUsername())) {
-            throw new UsernameAlreadyExistsException("Username already exists");
+            throw new UsernameAlreadyExistsException("Username već postoji u bazi");
         }
 
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new EmailAlreadyExistsException("Email already exists");
+            throw new EmailAlreadyExistsException("Email već postoji u bazi");
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -81,8 +81,23 @@ public class UserService {
      */
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException("User not found with id: " + id);
+            throw new UserNotFoundException("User sa ovim id-em nije pronađen: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<User> searchUsersByUsername(String username) {
+        return userRepository.findByUsernameContainingIgnoreCase(username);
+    }
+
+    public User updateUserRole(Long userId, Role role) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("User not found with id: " + userId));
+
+        user.setRole(role);
+
+        return userRepository.save(user);
     }
 }
