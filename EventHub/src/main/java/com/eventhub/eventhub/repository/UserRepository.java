@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.eventhub.eventhub.model.User;
+import com.eventhub.eventhub.model.enums.Role;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>  {
@@ -15,6 +16,10 @@ public interface UserRepository extends JpaRepository<User, Long>  {
 
     boolean existsByUsername(String username);
 
-    List<User> findByRole(String role);
+    boolean existsByEmail(String email);
+
+    List<User> findByRole(Role role);
+
+    List<User> findByUsernameContainingIgnoreCase(String username);
    
 }
