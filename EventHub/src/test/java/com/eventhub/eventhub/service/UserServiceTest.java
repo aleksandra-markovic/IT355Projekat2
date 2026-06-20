@@ -61,7 +61,7 @@ class UserServiceTest {
         RuntimeException ex = assertThrows(RuntimeException.class,
                 () -> userService.registerUser(user));
 
-        assertEquals("Username already exists", ex.getMessage());
+        assertEquals("Username već postoji u bazi", ex.getMessage());
     }
 
     @Test
