@@ -1,4 +1,4 @@
-package com.eventhub.eventhub.security;
+package com.eventhub.eventhub.service;
 
 import com.eventhub.eventhub.model.Location;
 import com.eventhub.eventhub.repository.LocationRepository;

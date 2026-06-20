@@ -1,7 +1,7 @@
 package com.eventhub.eventhub.controller;
 
 import com.eventhub.eventhub.model.Location;
-import com.eventhub.eventhub.security.LocationService;
+import com.eventhub.eventhub.service.LocationService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

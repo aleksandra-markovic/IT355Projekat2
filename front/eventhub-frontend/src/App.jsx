@@ -12,6 +12,7 @@ import EventForm from "./pages/EventForm";
 import MyReservations from "./pages/MyReservations";
 import EventReservations from "./pages/EventReservations";
 import AdminUsers from "./pages/AdminUsers";
+import AdminLocations from "./pages/AdminLocations";
 
 function App() {
 
@@ -102,6 +103,15 @@ function App() {
           element={
             <ProtectedRoute adminOnly={true}>
               <AdminUsers />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/locations"
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminLocations />
             </ProtectedRoute>
           }
         />

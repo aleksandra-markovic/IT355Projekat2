@@ -8,6 +8,7 @@ function AdminDashboard() {
       <div className="admin-links">
         <Link to="/admin/events">Upravljanje događajima</Link>
         <Link to="/admin/users">Upravljanje korisnicima</Link>
+        <Link to="/admin/locations">Upravljanje lokacijama</Link>
       </div>
     </div>
   );
